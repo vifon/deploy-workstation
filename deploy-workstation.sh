@@ -88,7 +88,6 @@ mv fzf-0.10.2-linux_amd64 ~/.bin/fzf
 
 cd ~/
 git clone http://github.com/vifon/zsh-image-extension ~/.zsh-image-extension
-ln -sfT ~/.zsh-image-extension/zsh-image-extension ~/src/zsh-config/zplugins/zsh-image-extension
 
 
 # emacs config
