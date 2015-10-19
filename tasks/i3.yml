@@ -1,0 +1,46 @@
+- name: install the stable i3, its utilities and additional dependencies
+  sudo: yes
+  apt:
+    pkg: "{{ item }}"
+  with_items:
+    - i3-wm
+    - i3status
+    - libxcb-xkb-dev
+    - libxkbcommon-dev
+    - libxkbcommon-x11-dev
+- name: ensure the i3 build-deps are installed
+  sudo: yes
+  apt:
+    pkg: i3-wm
+    state: build-dep
+- name: fetch the latest devel version of i3
+  git:
+    repo: http://github.com/i3/i3
+    dest: src/i3
+- name: build i3
+  command: make -j{{ ansible_processor_vcpus + 1 }}
+  args:
+    chdir: src/i3
+    creates: i3
+- name: install i3
+  command: make install PREFIX={{ ansible_env.HOME }}/pkgs/i3
+  args:
+    chdir: src/i3
+    creates: ~/pkgs/i3/bin/i3
+- name: fetch my i3 config
+  git:
+    repo: http://github.com/vifon/i3-config
+    dest: .i3
+- name: ensure there is a local bin directory
+  file:
+    path: ~/.bin
+    state: directory
+- name: link all the executable files from the config dir to bin
+  command: zsh -c 'ln -s ~/.i3/*(x.) ~/.bin'
+  args:
+    creates: ~/.bin/i3-find-empty-ws
+- name: ensure the i3status config is linked in the right place
+  file:
+    path: ~/.i3status.conf
+    src: ~/.i3/i3status.conf
+    state: link

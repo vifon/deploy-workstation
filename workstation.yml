@@ -1,0 +1,41 @@
+- hosts: all
+  tasks:
+    - name: update the apt database
+      sudo: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: "{{ 60 * 60 * 24 }}"
+    - name: ensure the common dependencies are installed
+      sudo: yes
+      apt:
+        pkg: "{{ item }}"
+      with_items:
+        - stow
+        - git
+        - zsh
+    - include: tasks/zsh.yml
+    - include: tasks/ranger.yml
+    - include: tasks/git.yml
+    - include: tasks/emacs.yml
+      vars:
+        emacs_version: 24
+    - include: tasks/i3.yml
+    - include: tasks/urxvt.yml
+    - name: ensure the local tree exists
+      file:
+        path: local
+        state: directory
+    - name: install the programs to the local tree
+      shell: stow -v -t ~/local/ -S *
+      args:
+        chdir: pkgs
+    - include: tasks/dotfiles.yml
+    - name: install some handy programs
+      sudo: yes
+      apt:
+        pkg: "{{ item }}"
+      with_items:
+        - xfonts-terminus
+        - fonts-font-awesome
+        - wget
+        - curl

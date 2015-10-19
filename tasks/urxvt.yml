@@ -1,0 +1,34 @@
+- name: install urxvt
+  sudo: yes
+  apt:
+    pkg: rxvt-unicode-256color
+- name: ensure the urxvt plugin directory exists
+  file:
+    path: ~/.urxvt/ext
+    state: directory
+- name: fetch autocomplete-ALL-the-things
+  git:
+    repo: http://github.com/vifon/autocomplete-ALL-the-things
+    dest: src/autocomplete-ALL-the-things
+- name: install autocomplete-ALL-the-things
+  file:
+    path: ~/.urxvt/ext/autocomplete-ALL-the-things
+    src: ~/src/autocomplete-ALL-the-things/autocomplete-ALL-the-things
+    state: link
+- name: fetch urxvt-perls
+  git:
+    repo: http://github.com/muennich/urxvt-perls
+    dest: src/urxvt-perls
+- name: install keyboard-select and url-select from urxvt-perls
+  file:
+    path: ~/.urxvt/ext/{{ item }}
+    src: ~/src/urxvt-perls/{{ item }}
+    state: link
+  with_items:
+    - keyboard-select
+    - url-select
+- name: install my modified cwd-spawn
+  get_url:
+    url: http://gist.githubusercontent.com/Vifon/33630ea812f36152a05a/raw/8fba54d4661b3c2920a977fcaab9772da96eda45/cwd-spawn
+    dest: ~/.urxvt/ext/cwd-spawn
+

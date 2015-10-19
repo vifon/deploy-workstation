@@ -1,0 +1,14 @@
+- name: fetch the devel version of ranger
+  git:
+    repo: http://github.com/hut/ranger
+    dest: src/ranger
+- name: install the devel version of ranger
+  command: python3 ./setup.py install --prefix={{ ansible_env.HOME }}/pkgs/ranger
+  args:
+    chdir: src/ranger
+    creates: ~/pkgs/ranger/bin/ranger
+- name: install the stable version of ranger as a fallback
+  sudo: yes
+  apt:
+    pkg: ranger
+    state: latest

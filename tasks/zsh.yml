@@ -1,0 +1,30 @@
+- name: ensure zsh is installed
+  sudo: yes
+  apt:
+    pkg: zsh
+- name: fetch my zsh config
+  git:
+    repo: http://bitbucket.org/vifon/zsh-config
+    dest: src/zsh-config
+- name: install the zsh config
+  command: ./install.sh -s
+  args:
+    chdir: src/zsh-config
+    creates: ~/.zshrc
+- name: check if fzf is installed
+  stat:
+    path: ~/.bin/fzf
+  register: fzf_status
+- include: fzf.yml
+  when: fzf_status.stat.exists == False
+  vars:
+    fzf_version: 0.10.2
+- name: install zsh-image-extension
+  git:
+    repo: http://github.com/vifon/zsh-image-extension
+    dest: ~/.zsh-image-extension
+- name: set the login shell
+  sudo: yes
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh

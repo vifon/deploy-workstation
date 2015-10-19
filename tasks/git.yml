@@ -1,0 +1,30 @@
+- name: install the Git build-deps
+  sudo: yes
+  apt:
+    pkg: git
+    state: build-dep
+- name: install some optional Git build-deps
+  sudo: yes
+  apt:
+    pkg: "{{ item }}"
+  with_items:
+    - libcurl4-gnutls-dev
+    - libssl-dev
+- name: fetch the latest devel version of Git
+  git:
+    repo: http://github.com/git/git
+    dest: src/git
+    depth: 1
+- name: build Git
+  command: make prefix={{ ansible_env.HOME }}/pkgs/git -j{{ ansible_processor_vcpus + 1 }} {{ item.target }}
+  args:
+    chdir: src/git
+    creates: "{{ item.creates }}"
+  with_items:
+    - { target: "all", creates: "git" }
+    - { target: "doc", creates: "Documentation/git.1" }
+- name: install Git
+  command: make prefix={{ ansible_env.HOME }}/pkgs/git install install-doc
+  args:
+    chdir: src/git
+    creates: ~/pkgs/git/bin/git

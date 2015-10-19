@@ -1,0 +1,27 @@
+- name: download the fzf archive
+  get_url:
+    url: https://github.com/junegunn/fzf-bin/releases/download/{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tgz
+    dest: /tmp/fzf.tar.gz
+- name: ensure there is a temporary directory for the fzf archive
+  file:
+    path: /tmp/fzf
+    state: directory
+- name: unpack the fzf package
+  unarchive:
+    src: /tmp/fzf.tar.gz
+    dest: /tmp/fzf
+    copy: no
+    creates: /tmp/fzf/fzf-{{ fzf_version }}-linux_amd64
+- name: ensure there is a local bin directory
+  file:
+    path: ~/.bin
+    state: directory
+- name: install the fzf executable
+  command: mv /tmp/fzf/fzf-{{ fzf_version }}-linux_amd64 ~/.bin/fzf
+- name: cleanup the fzf temporary files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/fzf.tar.gz
+    - /tmp/fzf

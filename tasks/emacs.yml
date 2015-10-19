@@ -1,0 +1,61 @@
+- name: ensure the Emacs build-deps are installed
+  sudo: yes
+  apt:
+    pkg: "{{ item }}"
+    state: build-dep
+  with_items:
+    - emacs{{ emacs_version }}
+    - emacs{{ emacs_version }}-common
+- name: fetch the latest Emacs sources
+  git:
+    repo: http://git.savannah.gnu.org/r/emacs.git
+    dest: src/emacs
+    depth: 20
+- name: ensure the Emacs build scripts were generated
+  command: ./autogen.sh
+  args:
+    chdir: src/emacs
+    creates: configure
+- name: configure the Emacs build
+  command: ./configure --with-x-toolkit=lucid --prefix={{ ansible_env.HOME }}/pkgs/emacs
+  args:
+    chdir: src/emacs
+    creates: Makefile
+- name: build Emacs
+  command: make -j{{ ansible_processor_vcpus + 1 }}
+  args:
+    chdir: src/emacs
+    creates: src/emacs
+- name: build the Emacs autoloads
+  command: make -C lisp autoloads
+  args:
+    chdir: src/emacs
+    creates: lisp/loaddefs.el
+- name: install Emacs
+  command: make install
+  args:
+    chdir: src/emacs
+    creates: ~/pkgs/emacs/bin/emacs
+- name: fetch my Emacs config
+  git:
+    repo: http://bitbucket.org/vifon/emacs-config
+    dest: src/emacs-config
+- name: install my Emacs config
+  command: ./install.sh
+  args:
+    chdir: src/emacs-config
+    creates: ~/.cask
+  environment:
+    PATH: "{{ ansible_env.HOME }}/pkgs/emacs/bin:{{ ansible_env.PATH }}"
+- name: check the exact Emacs version
+  command: emacs -Q --batch --eval "(princ emacs-version)"
+  register: emacs_version_exact
+  environment:
+    PATH: "{{ ansible_env.HOME }}/pkgs/emacs/bin:{{ ansible_env.PATH }}"
+- name: install the Emacs packages via Cask
+  command: cask install
+  args:
+    chdir: .emacs.d
+    creates: ~/.emacs.d/.cask/{{ emacs_version_exact.stdout }}/elpa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.cask/bin:{{ ansible_env.HOME }}/pkgs/emacs/bin:{{ ansible_env.PATH }}"

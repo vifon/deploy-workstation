@@ -1,0 +1,9 @@
+- name: fetch my dotfiles
+  git:
+    repo: http://bitbucket.org/vifon/dotfiles
+    dest: src/dotfiles
+- name: install my dotfiles
+  command: ./install.sh -s
+  args:
+    chdir: src/dotfiles
+    creates: ~/.xbindkeysrc.scm # among other files
