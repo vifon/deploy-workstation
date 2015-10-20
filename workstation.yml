@@ -39,3 +39,4 @@
         - fonts-font-awesome
         - wget
         - curl
+        - tmux

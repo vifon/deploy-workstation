@@ -1,3 +1,7 @@
+- name: ensure Python 3 is available
+  sudo: yes
+  apt:
+    pkg: python3
 - name: fetch the devel version of ranger
   git:
     repo: http://github.com/hut/ranger

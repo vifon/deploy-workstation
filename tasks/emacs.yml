@@ -39,6 +39,10 @@
   git:
     repo: http://bitbucket.org/vifon/emacs-config
     dest: src/emacs-config
+- name: ensure Curl is available
+  sudo: yes
+  apt:
+    pkg: curl
 - name: install my Emacs config
   command: ./install.sh
   args:
