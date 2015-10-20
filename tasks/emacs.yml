@@ -30,7 +30,6 @@
   command: make -C lisp autoloads
   args:
     chdir: src/emacs
-    creates: lisp/loaddefs.el
 - name: install Emacs
   command: make install
   args:
